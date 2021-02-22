@@ -158,15 +158,15 @@ def work(cv, messageQueue, frameQueue, addr):
         w, h = seg_map.shape
         print("Time spent handling the request: %f" % (time.time() - start))
         requests.post(addr + "?id=" + id+"?h="+h+"?w="+w, bytes(seg_map))
-
     print("End Message Processing Thread")
+
 ##################################################
 # API part
 ##################################################
 app = Flask(__name__)
-cors = CORS(app)
-@app.route("/api/SemanticSegmentation", methods=['POST'])
-def SemanticSegmentation():
+#cors = CORS(app)
+@app.route("/api/Segmentation", methods=['POST'])
+def Segmentation():
     global message, ids
     ids.append(request.args.get('id'))
     message.append(request.data)
