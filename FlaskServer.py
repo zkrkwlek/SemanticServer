@@ -229,6 +229,7 @@ if __name__ == "__main__":
     #print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
     #print(tf.Session())
 
+    """
     MODEL = DeepLabModel(download_path1)
     graph = MODEL.graph
     x = graph.get_tensor_by_name(MODEL.INPUT_TENSOR_NAME)
@@ -237,7 +238,7 @@ if __name__ == "__main__":
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3) #0.95
     sess_config = tf.ConfigProto(gpu_options=gpu_options)
     persistent_sess = tf.Session(graph=graph, config=sess_config)
-
+    """
     ##LOAD Roomnet
     ##roomnet_config = tf.ConfigProto()
     ##roomnet_config.gpu_options.allow_growth = True
@@ -254,9 +255,10 @@ if __name__ == "__main__":
     ##################################################
     # END Tensorflow part
     ##################################################
+    """
     th1 = threading.Thread(target=work, args=(ConditionVariable, message, ids, pointserver_addr))
     th1.start()
-
+    """
     print('Starting the API')
     opt = parser.parse_args()
     http = WSGIServer((opt.ip, opt.port), app.wsgi_app)
