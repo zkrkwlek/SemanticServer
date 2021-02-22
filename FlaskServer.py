@@ -1,7 +1,10 @@
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
+import argparse
 import ujson
+from gevent.pywsgi import WSGIServer
+
 #import hyperjson
 import numpy as np
 from PIL import Image
@@ -123,6 +126,7 @@ LABEL_NAMES = np.array(['wall' ,'building' ,'sky' ,'floor' ,'tree' ,'ceiling' ,'
 FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
 FULL_COLOR_MAP = label_to_color_image(FULL_LABEL_MAP)
 
+
 ##################################################
 # API part
 ##################################################
@@ -164,6 +168,16 @@ def predict():
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser(
+        description='WISE UI Web Server',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        '--ip', type=str,
+        help='ip address')
+    parser.add_argument(
+        '--port', type=int, default=35005,
+        help='port number')
+
     ##################################################
     # Tensorflow part
     ##################################################
@@ -197,5 +211,6 @@ if __name__ == "__main__":
     ##################################################
 
     print('Starting the API')
-    #app.run(host='143.248.94.189', port = 35005)
-    app.run(host='143.248.95.112', port=35005)
+    opt = parser.parse_args()
+    http = WSGIServer((opt.ip, opt.port), app.wsgi_app)
+    http.serve_forever()
