@@ -21,7 +21,7 @@ from matplotlib import gridspec
 from matplotlib import pyplot as plt
 
 tf.debugging.set_log_device_placement(True)
-download_path1 = "./PycharmProjects/DeepLabAPI-master/deeplab/model/deeplabv3_xception_ade20k_train_2018_05_29.tar.gz"
+download_path1 = "./deeplab/model/deeplabv3_xception_ade20k_train_2018_05_29.tar.gz"
 download_path2 = "./deeplab/model/deeplabv3_mnv2_ade20k_train_2018_12_03.tar.gz"
 saved_model_path = './deeplab/model/deeplab_ade20k/10/'
 
