@@ -141,6 +141,7 @@ def work(cv, messageQueue, frameQueue, addr):
     while True:
         cv.acquire()
         cv.wait()
+        print("pop")
         message = messageQueue.pop()
         id = frameQueue.pop()
         messageQueue.clear()
@@ -172,6 +173,7 @@ def SemanticSegmentation():
     global ConditionVariable
     ConditionVariable.acquire()
     ConditionVariable.notify()
+    print("Len : %d %d"%(len(message), len(ids)))
     ConditionVariable.release()
     return ""
 
