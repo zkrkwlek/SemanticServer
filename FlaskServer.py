@@ -147,7 +147,7 @@ def work(cv, messageQueue, frameQueue, addr):
         frameQueue.clear()
         cv.release()
         ##### 처리 시작
-        prin("seg start")
+        print("seg start")
         start = time.time()
         img_array = np.frombuffer(message, dtype=np.uint8)
         img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
