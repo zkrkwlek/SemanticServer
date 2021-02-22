@@ -149,9 +149,9 @@ def work(cv, messageQueue, frameQueue, addr):
         ##### 처리 시작
         start = time.time()
         img_array = np.frombuffer(message, dtype=np.uint8)
-        #img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-        #img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
-        img = Image.fromarray(img_array)
+        img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(img_cv)
         resized_img, seg_map = MODEL.run(img)
         h, w = seg_map.shape
         seg_map = np.array(seg_map, dtype=np.uint8)
