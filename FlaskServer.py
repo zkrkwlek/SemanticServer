@@ -261,5 +261,6 @@ if __name__ == "__main__":
     """
     print('Starting the API')
     opt = parser.parse_args()
-    http = WSGIServer((opt.ip, opt.port), app.wsgi_app)
-    http.serve_forever()
+    app.run(host=opt.ip, port=opt.port)
+    #http = WSGIServer((opt.ip, opt.port), app.wsgi_app)
+    #http.serve_forever()
