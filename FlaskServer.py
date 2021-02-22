@@ -153,7 +153,7 @@ def work(cv, messageQueue, frameQueue, addr):
         img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img_cv)
         resized_img, seg_map = MODEL.run(img)
-        w, h = seg_map.shape
+        h, w = seg_map.shape
         seg_map = np.array(seg_map, dtype=np.uint8)
         print("Segmentationn: %f : %d %d" % (time.time() - start, w, h))
         requests.post(addr + "?id=" + id+"&h="+str(h)+"&w="+str(w), bytes(seg_map))
@@ -172,7 +172,6 @@ def segment():
     global ConditionVariable
     ConditionVariable.acquire()
     ConditionVariable.notify()
-    print("Len : %d %d"%(len(message), len(ids)))
     ConditionVariable.release()
     return ""
 
