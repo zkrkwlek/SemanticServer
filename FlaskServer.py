@@ -1,9 +1,11 @@
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
+import threading
 import argparse
-import ujson
 from gevent.pywsgi import WSGIServer
+import requests
+import ujson
 
 #import hyperjson
 import numpy as np
@@ -126,12 +128,51 @@ LABEL_NAMES = np.array(['wall' ,'building' ,'sky' ,'floor' ,'tree' ,'ceiling' ,'
 FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
 FULL_COLOR_MAP = label_to_color_image(FULL_LABEL_MAP)
 
+#################################################
+# Segmentaion Thread
+ConditionVariable = threading.Condition()
+message = []
+ids = []
 
+pointserver_addr = "http://143.248.96.81:35005/ReceiveSegmentation"
+
+def work(cv, messageQueue, frameQueue, addr):
+    while True:
+        cv.acquire()
+        cv.wait()
+        message = messageQueue.pop()
+        id = frameQueue.pop()
+        messageQueue.clear()
+        frameQueue.clear()
+        cv.release()
+        ##### 처리 시작
+        start = time.time()
+        img_array = np.frombuffer(message, dtype=np.uint8)
+        img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(img_cv)
+        resized_img, seg_map = MODEL.run(img)
+        w, h = seg_map.shape
+        print("Time spent handling the request: %f" % (time.time() - start))
+
+        requests.post(addr + "?id=" + id+"?h="+h+"?w="+w, bytes(seg_map))
+    print("End Message Processing Thread")
 ##################################################
 # API part
 ##################################################
 app = Flask(__name__)
 cors = CORS(app)
+@app.route("/api/SemanticSegmentation", methods=['POST'])
+def SemanticSegmentation():
+    global message, ids
+    ids.append(request.args.get('id'))
+    message.append(request.data)
+    global ConditionVariable
+    ConditionVariable.acquire()
+    ConditionVariable.notify()
+    ConditionVariable.release()
+    return ""
+
 @app.route("/api/predict", methods=['POST'])
 def predict():
     start = time.time()
@@ -169,13 +210,13 @@ def predict():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
-        description='WISE UI Web Server',
+        description='WISE UI Semantic Segmentation Server',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        '--ip', type=str,
+        '--ip', type=str, default='0.0.0.0',
         help='ip address')
     parser.add_argument(
-        '--port', type=int, default=35005,
+        '--port', type=int, default=35006,
         help='port number')
 
     ##################################################
@@ -209,6 +250,8 @@ if __name__ == "__main__":
     ##################################################
     # END Tensorflow part
     ##################################################
+    th1 = threading.Thread(target=work, args=(ConditionVariable, message, ids, pointserver_addr))
+    th1.start()
 
     print('Starting the API')
     opt = parser.parse_args()
