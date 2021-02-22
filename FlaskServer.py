@@ -134,7 +134,7 @@ ConditionVariable = threading.Condition()
 message = []
 ids = []
 
-pointserver_addr = "http://143.248.96.81:35005/ReceiveSegmentation"
+pointserver_addr = "http://143.248.96.81:35005/ReceiveData"
 
 def work(cv, messageQueue, frameQueue, addr):
     print("Start Message Processing Thread")
@@ -156,7 +156,8 @@ def work(cv, messageQueue, frameQueue, addr):
         h, w = seg_map.shape
         seg_map = np.array(seg_map, dtype=np.uint8)
         print("Segmentationn: %f : %d %d" % (time.time() - start, w, h))
-        requests.post(addr + "?id=" + id+"&h="+str(h)+"&w="+str(w), bytes(seg_map))
+        requests.post(addr + "?id=" + id +"&key=segmentation", bytes(seg_map))
+        #requests.post(addr + "?id=" + id+"&h="+str(h)+"&w="+str(w), bytes(seg_map))
     print("End Message Processing Thread")
 
 ##################################################
