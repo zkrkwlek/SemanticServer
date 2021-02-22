@@ -141,14 +141,12 @@ def work(cv, messageQueue, frameQueue, addr):
     while True:
         cv.acquire()
         cv.wait()
-        print("pop")
         message = messageQueue.pop()
         id = frameQueue.pop()
         messageQueue.clear()
         frameQueue.clear()
         cv.release()
         ##### 처리 시작
-        print("seg start")
         start = time.time()
         img_array = np.frombuffer(message, dtype=np.uint8)
         img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
@@ -156,7 +154,7 @@ def work(cv, messageQueue, frameQueue, addr):
         img = Image.fromarray(img_cv)
         resized_img, seg_map = MODEL.run(img)
         w, h = seg_map.shape
-        print(seg_map.dtype)
+        seg_map = np.array(seg_map, dtype=np.uint8)
         print("Segmentationn: %f : %d %d" % (time.time() - start, w, h))
         requests.post(addr + "?id=" + id+"&h="+str(h)+"&w="+str(w), bytes(seg_map))
     print("End Message Processing Thread")
