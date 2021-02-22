@@ -156,6 +156,7 @@ def work(cv, messageQueue, frameQueue, addr):
         img = Image.fromarray(img_cv)
         resized_img, seg_map = MODEL.run(img)
         w, h = seg_map.shape
+        print(seg_map.dtype)
         print("Segmentationn: %f : %d %d" % (time.time() - start, w, h))
         requests.post(addr + "?id=" + id+"&h="+str(h)+"&w="+str(w), bytes(seg_map))
     print("End Message Processing Thread")
