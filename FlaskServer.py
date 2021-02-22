@@ -137,6 +137,7 @@ ids = []
 pointserver_addr = "http://143.248.96.81:35005/ReceiveSegmentation"
 
 def work(cv, messageQueue, frameQueue, addr):
+    print("Start Message Processing Thread")
     while True:
         cv.acquire()
         cv.wait()
@@ -146,6 +147,7 @@ def work(cv, messageQueue, frameQueue, addr):
         frameQueue.clear()
         cv.release()
         ##### 처리 시작
+        prin("seg start")
         start = time.time()
         img_array = np.frombuffer(message, dtype=np.uint8)
         img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
@@ -154,8 +156,8 @@ def work(cv, messageQueue, frameQueue, addr):
         resized_img, seg_map = MODEL.run(img)
         w, h = seg_map.shape
         print("Time spent handling the request: %f" % (time.time() - start))
-
         requests.post(addr + "?id=" + id+"?h="+h+"?w="+w, bytes(seg_map))
+
     print("End Message Processing Thread")
 ##################################################
 # API part
