@@ -229,14 +229,18 @@ if __name__ == "__main__":
     #print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
     #print(tf.Session())
 
-    MODEL = DeepLabModel(download_path1)
-    graph = MODEL.graph
-    x = graph.get_tensor_by_name(MODEL.INPUT_TENSOR_NAME)
-    y = graph.get_tensor_by_name(MODEL.OUTPUT_TENSOR_NAME)
+    try:
+        with tf.device('device:GPU:0'):
+            MODEL = DeepLabModel(download_path1)
+            graph = MODEL.graph
+            x = graph.get_tensor_by_name(MODEL.INPUT_TENSOR_NAME)
+            y = graph.get_tensor_by_name(MODEL.OUTPUT_TENSOR_NAME)
 
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3) #0.95
-    sess_config = tf.ConfigProto(gpu_options=gpu_options)
-    persistent_sess = tf.Session(graph=graph, config=sess_config)
+            gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3) #0.95
+            sess_config = tf.ConfigProto(gpu_options=gpu_options)
+            persistent_sess = tf.Session(graph=graph, config=sess_config)
+    except RuntimeError as e:
+        print(e)
 
     ##LOAD Roomnet
     ##roomnet_config = tf.ConfigProto()
