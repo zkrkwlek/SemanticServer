@@ -130,25 +130,19 @@ FULL_COLOR_MAP = label_to_color_image(FULL_LABEL_MAP)
 
 #################################################
 # Segmentaion Thread
-ConditionVariable = threading.Condition()
-message = []
-ids = []
 
-pointserver_addr = "http://143.248.96.81:35005/ReceiveData"
-
-def work(cv, messageQueue, frameQueue, addr):
+def work(cv, mapQueue, frameQueue, dataQueue, addr):
     print("Start Message Processing Thread")
     while True:
         cv.acquire()
         cv.wait()
-        message = messageQueue.pop()
+        map = mapQueue.pop()
         id = frameQueue.pop()
-        messageQueue.clear()
-        frameQueue.clear()
+        data = dataQueue.pop()
         cv.release()
         ##### 처리 시작
         start = time.time()
-        img_array = np.frombuffer(message, dtype=np.uint8)
+        img_array = np.frombuffer(data, dtype=np.uint8)
         img_cv = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img_cv)
@@ -156,7 +150,7 @@ def work(cv, messageQueue, frameQueue, addr):
         h, w = seg_map.shape
         seg_map = np.array(seg_map, dtype=np.uint8)
         print("Segmentationn: %f : %d %d" % (time.time() - start, w, h))
-        requests.post(addr + "?id=" + id +"&key=bsegmentation", bytes(seg_map))
+        requests.post(addr + "?map="+map+"&id=" + id +"&key=bsegmentation", bytes(seg_map))
         #requests.post(addr + "?id=" + id+"&h="+str(h)+"&w="+str(w), bytes(seg_map))
     print("End Message Processing Thread")
 
@@ -167,10 +161,10 @@ app = Flask(__name__)
 #cors = CORS(app)
 @app.route("/segment", methods=['POST'])
 def segment():
-    global message, ids
+    maps.append(request.args.get('map'))
     ids.append(request.args.get('id'))
-    message.append(request.data)
-    global ConditionVariable
+    datas.append(request.data)
+
     ConditionVariable.acquire()
     ConditionVariable.notify()
     ConditionVariable.release()
@@ -258,7 +252,12 @@ if __name__ == "__main__":
     # END Tensorflow part
     ##################################################
 
-    th1 = threading.Thread(target=work, args=(ConditionVariable, message, ids, pointserver_addr))
+    ConditionVariable = threading.Condition()
+    maps = []
+    datas = []
+    ids = []
+    pointserver_addr = "http://143.248.96.81:35005/ReceiveData"
+    th1 = threading.Thread(target=work, args=(ConditionVariable, maps, ids, datas, pointserver_addr))
     th1.start()
 
     print('Starting the API')
