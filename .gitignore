@@ -92,6 +92,9 @@ ENV/
 
 # PyCharm
 .idea/
+module/__pycache__
+superglue/__pycache__
+
 
 # For mac
 .DS_Store

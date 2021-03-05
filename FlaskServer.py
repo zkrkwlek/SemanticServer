@@ -12,7 +12,6 @@ import numpy as np
 from PIL import Image
 import time
 from flask import Flask, request
-from flask_cors import CORS
 import base64
 import cv2
 
@@ -213,7 +212,10 @@ if __name__ == "__main__":
         '--ip', type=str, default='0.0.0.0',
         help='ip address')
     parser.add_argument(
-        '--port', type=int, default=35006,
+        '--port', type=int, default=35007,
+        help='port number')
+    parser.add_argument(
+        '--SERVER_ADDR', type=str,
         help='port number')
 
     ##################################################
@@ -256,7 +258,9 @@ if __name__ == "__main__":
     maps = []
     datas = []
     ids = []
-    pointserver_addr = "http://143.248.96.81:35005/ReceiveData"
+
+    SERVER_ADDR = opt.SERVER_ADDR
+    pointserver_addr = SERVER_ADDR+'/ReceiveData'
     th1 = threading.Thread(target=work, args=(ConditionVariable, maps, ids, datas, pointserver_addr))
     th1.start()
 
