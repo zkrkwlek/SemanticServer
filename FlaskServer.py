@@ -259,13 +259,14 @@ if __name__ == "__main__":
     datas = []
     ids = []
 
+    opt = parser.parse_args()
     SERVER_ADDR = opt.SERVER_ADDR
+
     pointserver_addr = SERVER_ADDR+'/ReceiveData'
     th1 = threading.Thread(target=work, args=(ConditionVariable, maps, ids, datas, pointserver_addr))
     th1.start()
-
     print('Starting the API')
-    opt = parser.parse_args()
+
     #app.run(host=opt.ip, port=opt.port)
     http = WSGIServer((opt.ip, opt.port), app.wsgi_app)
     http.serve_forever()
